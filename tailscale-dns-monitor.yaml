@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: tailscale-dns-monitor
+spec:
+  schedule: "@hourly"
+  jobTemplate:
+    spec:
+      template:
+        serviceAccount: node-reader
+        containers:
+        - name: tailscale-dns-monitor
+          image: jmarhee/tailscale-dns-monitor
+          env:
+          - name: TAILNET_ID
+            valueFrom:
+              secretKeyRef:
+                name: tailscale-auth
+                key: tailnet-id
+                optional: false
+          - name: TAILSCALE_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: tailscale-auth
+                key: tailscale-token
+                optional: false
+          - name: FORWARDING_NAMESERVERS
+            valueFrom:
+              secretKeyRef:
+                name: tailscale-auth
+                key: tailscale-forwarding-nameservers
+                optional: false
+          
